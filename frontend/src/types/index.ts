@@ -67,8 +67,8 @@ export interface AuthResponse {
 }
 
 export interface Transaction {
-  transaction_id: number;
-  customer_id?: number;
+  transaction_id: string;
+  customer_id?: string;
   transaction_date: string;
   total_amount: number;
   total_discount: number;

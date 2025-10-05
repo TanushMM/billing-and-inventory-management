@@ -192,6 +192,9 @@ export const customerService = {
   },
 };
 
+import { mockTransactions } from "./mockData"
+import type { Transaction } from '@/types';
+
 // Mock APIs
 export const transactionService = {
   async getAll(): Promise<Transaction[]> {
@@ -199,7 +202,7 @@ export const transactionService = {
     return [...mockTransactions];
   },
 
-  async getById(id: number): Promise<Transaction> {
+  async getById(id: string): Promise<Transaction> {
     await new Promise(resolve => setTimeout(resolve, 300));
     const transaction = mockTransactions.find(t => t.transaction_id === id);
     if (!transaction) throw new Error('Transaction not found');
@@ -210,7 +213,7 @@ export const transactionService = {
     await new Promise(resolve => setTimeout(resolve, 300));
     const newTransaction: Transaction = {
       ...transaction,
-      transaction_id: mockTransactions.length + 1,
+      transaction_id: "hello world",
       transaction_date: new Date().toISOString(),
     };
     mockTransactions.push(newTransaction);
