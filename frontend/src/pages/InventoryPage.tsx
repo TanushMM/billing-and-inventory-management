@@ -134,7 +134,11 @@ const InventoryPage = () => {
                     )}
                   </TableCell>
                   <TableCell>{item.batch_number || '-'}</TableCell>
-                  <TableCell>{item.expiry_date || '-'}</TableCell>
+                    <TableCell>
+                    {item.expiry_date
+                      ? new Date(item.expiry_date).toLocaleDateString('en-GB')
+                      : '-'}
+                    </TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="icon" onClick={() => handleEdit(item)}>
                       <Pencil className="h-4 w-4" />
