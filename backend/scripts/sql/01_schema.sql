@@ -31,6 +31,8 @@ CREATE TABLE IF NOT EXISTS products (
   selling_price DECIMAL(10, 2) NOT NULL,
   mrp DECIMAL(10, 2) NOT NULL,
   is_weighted BOOLEAN DEFAULT FALSE,
+  weight DECIMAL(10, 2),
+  weight_unit_id VARCHAR(50) REFERENCES units(unit_id),
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -34,6 +34,8 @@ export const ProductFormDialog = ({
     selling_price: 0,
     mrp: 0,
     is_weighted: false,
+    weight: 0,
+    weight_unit_id: undefined
   });
 
   useEffect(() => {
@@ -49,6 +51,8 @@ export const ProductFormDialog = ({
         selling_price: 0,
         mrp: 0,
         is_weighted: false,
+        weight: 0,
+        weight_unit_id: undefined
       });
     }
   }, [product, open]);
@@ -135,6 +139,39 @@ export const ProductFormDialog = ({
               <Label htmlFor="weighted">Is Weighted</Label>
             </div>
           </div>
+
+          {!formData.is_weighted && (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="weight">Weight</Label>
+                <Input
+                  id="weight"
+                  type="number"
+                  step="0.01"
+                  value={formData.weight || ''}
+                  onChange={(e) => setFormData({ ...formData, weight: parseFloat(e.target.value) })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="weight_unit">Weight Unit</Label>
+                <Select
+                  value={formData.weight_unit_id?.toString()}
+                  onValueChange={(value) => setFormData({ ...formData, weight_unit_id: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select weight unit" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {units.map((unit) => (
+                      <SelectItem key={unit.unit_id} value={unit.unit_id.toString()}>
+                        {unit.unit_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">

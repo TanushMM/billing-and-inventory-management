@@ -10,6 +10,8 @@ export const productCreateSchema = z.object({
   selling_price: z.coerce.number().nonnegative(),
   mrp: z.coerce.number().nonnegative(),
   is_weighted: z.coerce.boolean().optional().default(false),
+  weight: z.coerce.number().nonnegative().optional().nullable(),
+  weight_unit_id: z.string().optional().nullable()
 })
 
 export const productUpdateSchema = z.object({
@@ -21,6 +23,8 @@ export const productUpdateSchema = z.object({
   selling_price: z.coerce.number().nonnegative().optional(),
   mrp: z.coerce.number().nonnegative().optional(),
   is_weighted: z.coerce.boolean().optional(),
+  weight: z.coerce.number().nonnegative().optional().nullable(),
+  weight_unit_id: z.string().optional().nullable()
 })
 
 export type ProductCreateInput = z.infer<typeof productCreateSchema>

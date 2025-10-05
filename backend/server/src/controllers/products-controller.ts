@@ -17,6 +17,8 @@ export async function listProducts(_req: Request, res: Response) {
        p.selling_price,
        p.mrp,
        p.is_weighted,
+       p.weight,
+       p.weight_unit_id,
        p.created_at,
        COALESCE(i.stock_quantity, 0) AS stock_quantity -- Changed from SUM to a direct value
      FROM products p
@@ -43,6 +45,8 @@ export async function getProduct(req: Request, res: Response) {
        p.selling_price,
        p.mrp,
        p.is_weighted,
+       p.weight,
+       p.weight_unit_id,
        p.created_at
      FROM products p
      LEFT JOIN categories c ON c.category_id = p.category_id
@@ -64,6 +68,8 @@ export async function createProduct(req: Request, res: Response) {
     selling_price,
     mrp,
     is_weighted = false,
+    weight,
+    weight_unit_id,
   } = req.body as {
     name: string
     description?: string | null
@@ -73,15 +79,17 @@ export async function createProduct(req: Request, res: Response) {
     selling_price: number
     mrp: number
     is_weighted?: boolean
+    weight?: number
+    weight_unit_id?: string
   }
   const uuid = randomUUID()
   try {
     await pool.query("BEGIN")
     const { rows } = await pool.query(
       `INSERT INTO products
-       (product_id, name, description, category_id, unit_id, cost_price, selling_price, mrp, is_weighted)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-       RETURNING product_id, name, description, category_id, unit_id, cost_price, selling_price, mrp, is_weighted, created_at`,
+       (product_id, name, description, category_id, unit_id, cost_price, selling_price, mrp, is_weighted, weight, weight_unit_id)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9, $10, $11)
+       RETURNING product_id, name, description, category_id, unit_id, cost_price, selling_price, mrp, is_weighted, weight, weight_unit_id, created_at`,
       [
         uuid,
         name,
@@ -92,6 +100,8 @@ export async function createProduct(req: Request, res: Response) {
         selling_price,
         mrp,
         is_weighted,
+        weight,
+        weight_unit_id
       ],
     )
     const newProduct = rows[0]
@@ -120,7 +130,7 @@ export async function createProduct(req: Request, res: Response) {
 
 export async function updateProduct(req: Request, res: Response) {
   const id = req.params.id
-  const { name, description, category_id, unit_id, cost_price, selling_price, mrp, is_weighted } = req.body as {
+  const { name, description, category_id, unit_id, cost_price, selling_price, mrp, is_weighted, weight, weight_unit_id } = req.body as {
     name?: string
     description?: string | null
     category_id?: string | null
@@ -129,6 +139,8 @@ export async function updateProduct(req: Request, res: Response) {
     selling_price?: number
     mrp?: number
     is_weighted?: boolean
+    weight?: number
+    weight_unit_id?: string
   }
 
   const { rows } = await pool.query(
@@ -140,9 +152,11 @@ export async function updateProduct(req: Request, res: Response) {
          cost_price = COALESCE($6, cost_price),
          selling_price = COALESCE($7, selling_price),
          mrp = COALESCE($8, mrp),
-         is_weighted = COALESCE($9, is_weighted)
+         is_weighted = COALESCE($9, is_weighted),
+         weight = COALESCE($10, weight),
+         weight_unit_id = COALESCE($11, weight_unit_id)
      WHERE product_id = $1
-     RETURNING product_id, name, description, category_id, unit_id, cost_price, selling_price, mrp, is_weighted, created_at`,
+     RETURNING product_id, name, description, category_id, unit_id, cost_price, selling_price, mrp, is_weighted, weight, weight_unit_id, created_at`,
     [
       id,
       name ?? null,
@@ -153,6 +167,8 @@ export async function updateProduct(req: Request, res: Response) {
       selling_price ?? null,
       mrp ?? null,
       is_weighted ?? null,
+      weight,
+      weight_unit_id,
     ],
   )
   if (!rows[0]) return res.status(404).json({ error: "Product not found" })

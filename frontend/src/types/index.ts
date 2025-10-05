@@ -29,6 +29,8 @@ export interface Product {
   mrp: number;
   is_weighted: boolean;
   created_at: string;
+  weight?: number;
+  weight_unit_id?: string;
   stock_quantity: number;
   category?: Category;
   unit?: Unit;
