@@ -41,12 +41,16 @@ export function CartItemRow({
   const [discountInputType, setDiscountInputType] = useState<'fixed' | 'percentage'>(discountType || 'percentage');
   const [discountInputValue, setDiscountInputValue] = useState(discountValue.toString());
 
-  const itemTotal = quantity * unitPrice;
+  // const itemTotal = quantity * unitPrice;
+  const numericUnitPrice = Number(unitPrice);
+  const itemTotal = quantity * numericUnitPrice;
   
   const calculateDiscount = () => {
     if (!discountType || discountValue === 0) return 0;
-    if (discountType === 'fixed') return discountValue;
-    return (itemTotal * discountValue) / 100;
+    // if (discountType === 'fixed') return discountValue;
+    // return (itemTotal * discountValue) / 100;
+    if (discountType === 'fixed') return Number(discountValue);
+    return (itemTotal * Number(discountValue)) / 100;
   };
 
   const itemDiscount = calculateDiscount();
@@ -54,7 +58,8 @@ export function CartItemRow({
 
   const handlePriceBlur = () => {
     const newPrice = parseFloat(tempPrice);
-    if (!isNaN(newPrice) && newPrice > 0 && newPrice <= product.mrp) {
+    // if (!isNaN(newPrice) && newPrice > 0 && newPrice <= product.mrp) {
+    if (!isNaN(newPrice) && newPrice > 0 && newPrice <= Number(product.mrp)) {
       onPriceChange(productId, newPrice);
     } else {
       setTempPrice(unitPrice.toString());
@@ -147,7 +152,7 @@ export function CartItemRow({
               onClick={() => setIsEditingPrice(true)}
               className="h-8 w-full justify-start font-mono"
             >
-              ₹{unitPrice.toFixed(2)}
+              ₹{numericUnitPrice.toFixed(2)}
             </Button>
           )}
         </div>

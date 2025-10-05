@@ -23,7 +23,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { CartItemRow } from '@/components/pos/CartItemRow';
-import { CartDiscountDialog } from '@/components/pos/CartDIscountDialog';
+import { CartDiscountDialog } from '@/components/pos/CartDiscountDialog';
 
 interface CartItem {
   product: Product;
@@ -294,9 +294,10 @@ export default function POSPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
                   <TableHead>Name</TableHead>
+                  {/* <TableHead>Description</TableHead> */}
                   <TableHead>Price</TableHead>
+                  <TableHead>MRP</TableHead>
                   <TableHead>Unit</TableHead>
                   <TableHead>Action</TableHead>
                 </TableRow>
@@ -304,9 +305,10 @@ export default function POSPage() {
               <TableBody>
                 {filteredProducts.map((product) => (
                   <TableRow key={product.product_id}>
-                    <TableCell>{product.product_id}</TableCell>
                     <TableCell>{product.name}</TableCell>
+                    {/* <TableCell>{product.description}</TableCell> */}
                     <TableCell>₹{product.selling_price}</TableCell>
+                    <TableCell>₹{product.mrp}</TableCell>
                     <TableCell>
                       {product.unit_name}
                       {product.is_weighted && ' (weighted)'}
