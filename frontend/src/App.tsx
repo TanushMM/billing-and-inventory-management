@@ -9,6 +9,7 @@ import ProductsPage from "./pages/ProductsPage";
 import InventoryPage from "./pages/InventoryPage";
 import CustomersPage from "./pages/CustomerPage";
 import POSPage from "./pages/POSPage";
+import SalesPage from "./pages/SalesPage";
 import NotFound from "./pages/NotFound";
 import { authService } from "./services/api";
 
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/inventory" element={<InventoryPage />} />
             <Route path="/customers" element={<CustomersPage />} />
             <Route path="/pos" element={<POSPage />} />
+            <Route path="/sales" element={<SalesPage />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

@@ -73,3 +73,96 @@ export async function createTransaction(req: Request, res: Response) {
     client.release();
   }
 }
+
+export async function listTransactions(req: Request, res: Response) {
+  const { page = 1, limit = 10, filter, startDate, endDate } = req.query;
+
+  const offset = (Number(page) - 1) * Number(limit);
+  let whereClause = "";
+  let countWhereClause = "";
+  const queryParams = [limit, offset];
+
+  if (filter === 'day') {
+    whereClause = `WHERE t.transaction_date >= current_date`;
+  } else if (filter === 'month') {
+    whereClause = `WHERE t.transaction_date >= date_trunc('month', current_date)`;
+  } else if (filter === 'year') {
+    whereClause = `WHERE t.transaction_date >= date_trunc('year', current_date)`;
+  } else if (filter === 'custom' && startDate && endDate) {
+    queryParams.push(startDate as string, endDate as string);
+    whereClause = `WHERE t.transaction_date::date BETWEEN $3 AND $4`;
+    countWhereClause = `WHERE t.transaction_date::date BETWEEN $1 AND $2`;
+  }
+
+  const dataQuery = `
+    SELECT
+      t.transaction_id,
+      t.transaction_date,
+      t.final_amount,
+      t.payment_method,
+      c.name as customer_name
+    FROM transactions t
+    LEFT JOIN customers c ON t.customer_id = c.customer_id
+    ${whereClause}
+    ORDER BY t.transaction_date DESC
+    LIMIT $1 OFFSET $2
+  `;
+
+  const countQuery = `SELECT COUNT(*) FROM transactions t ${countWhereClause || whereClause}`;
+
+  const [dataResult, countResult] = await Promise.all([
+    pool.query(dataQuery, queryParams.slice(0, whereClause ? queryParams.length : 2)),
+    pool.query(countQuery, (filter === 'custom' && startDate && endDate) ? queryParams.slice(2) : [])
+  ]);
+
+  const totalRecords = parseInt(countResult.rows[0].count, 10);
+  res.json({ data: dataResult.rows, total: totalRecords });
+}
+
+export async function exportTransactions(req: Request, res: Response) {
+  const { filter, startDate, endDate } = req.query;
+
+  let whereClause = "";
+  const queryParams = [];
+
+  if (filter === 'day') {
+    whereClause = `WHERE t.transaction_date >= current_date`;
+  } else if (filter === 'month') {
+    whereClause = `WHERE t.transaction_date >= date_trunc('month', current_date)`;
+  } else if (filter === 'year') {
+    whereClause = `WHERE t.transaction_date >= date_trunc('year', current_date)`;
+  } else if (filter === 'custom' && startDate && endDate) {
+    queryParams.push(startDate as string, endDate as string);
+    whereClause = `WHERE t.transaction_date::date BETWEEN $1 AND $2`;
+  }
+
+  const query = `
+    SELECT
+      t.transaction_id,
+      t.transaction_date,
+      t.final_amount,
+      t.payment_method,
+      c.name as customer_name
+    FROM transactions t
+    LEFT JOIN customers c ON t.customer_id = c.customer_id
+    ${whereClause}
+    ORDER BY t.transaction_date DESC
+  `;
+
+  try {
+    const result = await pool.query(query, queryParams);
+    const transactions = result.rows;
+
+    let csv = 'Transaction ID,Customer Name,Date,Payment Method,Final Amount\n';
+    transactions.forEach(tx => {
+      csv += `"${tx.transaction_id}","${tx.customer_name || 'N/A'}","${new Date(tx.transaction_date).toLocaleString()}","${tx.payment_method}","${tx.final_amount}"\n`;
+    });
+
+    res.header('Content-Type', 'text/csv');
+    res.attachment('sales-report.csv');
+    res.send(csv);
+  } catch (error) {
+    console.error("Failed to export transactions:", error);
+    res.status(500).json({ error: "Failed to export data" });
+  }
+}

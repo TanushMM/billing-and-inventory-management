@@ -72,6 +72,7 @@ export interface Transaction {
   transaction_date: string;
   total_amount: number;
   total_discount: number;
+  customer_name: string;
   final_amount: number;
   payment_method: 'cash' | 'upi' | 'credit';
   change_due: number;

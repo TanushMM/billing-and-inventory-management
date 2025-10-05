@@ -193,6 +193,43 @@ export const customerService = {
 };
 
 export const transactionService = {
+  getAll(params: { page: number, limit: number, filter?: string, startDate?: string, endDate?: string }): Promise<{ data: Transaction[], total: number }> {
+    const query = new URLSearchParams({
+      page: params.page.toString(),
+      limit: params.limit.toString(),
+    });
+    if (params.filter) query.set('filter', params.filter);
+    if (params.startDate) query.set('startDate', params.startDate);
+    if (params.endDate) query.set('endDate', params.endDate);
+
+    return apiCall<{ data: Transaction[], total: number }>(`/transactions?${query.toString()}`);
+  },
+  async export(params: { filter?: string, startDate?: string, endDate?: string }): Promise<void> {
+    const query = new URLSearchParams();
+    if (params.filter) query.set('filter', params.filter);
+    if (params.startDate) query.set('startDate', params.startDate);
+    if (params.endDate) query.set('endDate', params.endDate);
+
+    const token = authService.getToken();
+    const response = await fetch(`${API_BASE_URL}/transactions/export?${query.toString()}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to export data');
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'sales-report.csv';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  },
   create(transaction: Omit<Transaction, 'transaction_id' | 'transaction_date'>): Promise<Transaction> {
     return apiCall<Transaction>('/transactions', {
       method: 'POST',

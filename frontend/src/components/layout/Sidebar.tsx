@@ -1,4 +1,4 @@
-import { Package, Warehouse, LogOut, ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react';
+import { Package, Warehouse, LogOut, ChevronLeft, ChevronRight, ShoppingCart, LineChart, PersonStanding } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { authService } from '@/services/api';
@@ -22,8 +22,9 @@ export const Sidebar = ({ collapsed, onToggle }: SidebarProps) => {
   const navItems = [
     { path: '/products', label: 'Products', icon: Package },
     { path: '/inventory', label: 'Inventory', icon: Warehouse },
-    { path: '/customers', label: 'Customers', icon: Package },
+    { path: '/customers', label: 'Customers', icon: PersonStanding },
     { path: '/pos', label: 'POS', icon: ShoppingCart },
+    { path: '/sales', label: 'Sales', icon: LineChart },
   ];
 
   return (
