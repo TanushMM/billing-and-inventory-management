@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Inventory } from '@/types';
 import { inventoryService } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
-import { Pencil, AlertTriangle } from 'lucide-react';
+import { Pencil, AlertTriangle, Search } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 const InventoryPage = () => {
@@ -16,6 +16,7 @@ const InventoryPage = () => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Inventory | null>(null);
   const [formData, setFormData] = useState({
+    product_id: '',
     inventory_id: '',
     stock_quantity: 0,
     min_stock_level: 0,
@@ -23,6 +24,8 @@ const InventoryPage = () => {
     expiry_date: '',
   });
   const { toast } = useToast();
+
+  const [searchQuery, setSearchQuery] = useState('');
 
   const loadInventory = async () => {
     try {
@@ -47,6 +50,7 @@ const InventoryPage = () => {
   const handleEdit = (item: Inventory) => {
     setEditingItem(item);
     setFormData({
+      product_id: item.product_id,
       inventory_id: item.inventory_id,
       stock_quantity: item.stock_quantity,
       min_stock_level: item.min_stock_level,
@@ -76,6 +80,10 @@ const InventoryPage = () => {
     return item.stock_quantity <= item.min_stock_level;
   };
 
+  const filteredInventory = inventory.filter((item) =>
+    item.product?.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -89,6 +97,16 @@ const InventoryPage = () => {
       <div>
         <h1 className="text-3xl font-bold">Inventory Management</h1>
         <p className="text-muted-foreground">Track and manage stock levels</p>
+      </div>
+
+      <div className="relative">
+        <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search by product name..."
+          className="pl-10"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
       </div>
 
       <div className="border rounded-lg">
@@ -112,7 +130,7 @@ const InventoryPage = () => {
                 </TableCell>
               </TableRow>
             ) : (
-              inventory.map((item) => (
+              filteredInventory.map((item) => (
                 <TableRow key={item.inventory_id}>
                   <TableCell className="font-medium">
                     {item.product?.name || 'Unknown'}

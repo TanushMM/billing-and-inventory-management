@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, Settings } from 'lucide-react';
+import { Plus, Settings, Search } from 'lucide-react';
 import { ProductTable } from '@/components/products/ProductTable';
 import { ProductFormDialog } from '@/components/products/ProductFormDialog';
 import { ConfigureDialog } from '@/components/products/ConfigureDialog';
 import { Product, Category, Unit } from '@/types';
 import { productService, categoryService, unitService } from '@/services/api';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 
 const ProductsPage = () => {
@@ -16,6 +17,7 @@ const ProductsPage = () => {
   const [productDialogOpen, setProductDialogOpen] = useState(false);
   const [configureDialogOpen, setConfigureDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
+  const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
 
   const loadData = async () => {
@@ -181,6 +183,14 @@ const ProductsPage = () => {
     }
   };
 
+  const filteredProducts = products.filter(
+    (product) =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.product_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.category_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -208,8 +218,18 @@ const ProductsPage = () => {
         </div>
       </div>
 
+      <div className="relative">
+        <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search products by name or ID..."
+          className="pl-10"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+
       <ProductTable
-        products={products}
+        products={filteredProducts}
         categories={categories}
         units={units}
         onEdit={handleEditProduct}
