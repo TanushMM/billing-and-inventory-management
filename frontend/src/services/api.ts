@@ -132,13 +132,13 @@ export const categoryService = {
       body: JSON.stringify(category),
     });
   },
-  update(id: number, category: Partial<Category>): Promise<Category> {
+  update(id: string, category: Partial<Category>): Promise<Category> {
     return apiCall<Category>(`/categories/${id}`, {
       method: 'PUT',
       body: JSON.stringify(category),
     });
   },
-  delete(id: number): Promise<void> {
+  delete(id: string): Promise<void> {
     return apiCall<void>(`/categories/${id}`, {
       method: 'DELETE',
     });
@@ -156,13 +156,13 @@ export const unitService = {
       body: JSON.stringify(unit),
     });
   },
-  update(id: number, unit: Partial<Unit>): Promise<Unit> {
+  update(id: string, unit: Partial<Unit>): Promise<Unit> {
     return apiCall<Unit>(`/units/${id}`, {
       method: 'PUT',
       body: JSON.stringify(unit),
     });
   },
-  delete(id: number): Promise<void> {
+  delete(id: string): Promise<void> {
     return apiCall<void>(`/units/${id}`, {
       method: 'DELETE',
     });

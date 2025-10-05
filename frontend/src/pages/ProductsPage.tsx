@@ -104,7 +104,7 @@ const ProductsPage = () => {
     }
   };
 
-  const handleUpdateCategory = async (id: number, category: Partial<Category>) => {
+  const handleUpdateCategory = async (id: string, category: Partial<Category>) => {
     try {
       await categoryService.update(id, category);
       toast({ title: 'Category updated successfully' });
@@ -119,7 +119,7 @@ const ProductsPage = () => {
     }
   };
 
-  const handleDeleteCategory = async (id: number) => {
+  const handleDeleteCategory = async (id: string) => {
     if (!confirm('Are you sure you want to delete this category?')) return;
     try {
       await categoryService.delete(id);
@@ -150,7 +150,7 @@ const ProductsPage = () => {
     }
   };
 
-  const handleUpdateUnit = async (id: number, unit: Partial<Unit>) => {
+  const handleUpdateUnit = async (id: string, unit: Partial<Unit>) => {
     try {
       await unitService.update(id, unit);
       toast({ title: 'Unit updated successfully' });
@@ -165,7 +165,7 @@ const ProductsPage = () => {
     }
   };
 
-  const handleDeleteUnit = async (id: number) => {
+  const handleDeleteUnit = async (id: string) => {
     if (!confirm('Are you sure you want to delete this unit?')) return;
     try {
       await unitService.delete(id);

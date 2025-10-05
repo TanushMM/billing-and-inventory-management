@@ -2,7 +2,7 @@
 import "express"
 
 export interface AuthUser {
-  biller_id: number
+  biller_id: string
   username: string
   full_name: string
 }

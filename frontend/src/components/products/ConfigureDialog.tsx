@@ -14,11 +14,11 @@ interface ConfigureDialogProps {
   categories: Category[];
   units: Unit[];
   onAddCategory: (category: Omit<Category, 'category_id'>) => void;
-  onUpdateCategory: (id: number, category: Partial<Category>) => void;
-  onDeleteCategory: (id: number) => void;
+  onUpdateCategory: (id: string, category: Partial<Category>) => void;
+  onDeleteCategory: (id: string) => void;
   onAddUnit: (unit: Omit<Unit, 'unit_id'>) => void;
-  onUpdateUnit: (id: number, unit: Partial<Unit>) => void;
-  onDeleteUnit: (id: number) => void;
+  onUpdateUnit: (id: string, unit: Partial<Unit>) => void;
+  onDeleteUnit: (id: string) => void;
 }
 
 export const ConfigureDialog = ({

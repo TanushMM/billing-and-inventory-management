@@ -118,10 +118,10 @@ const InventoryPage = () => {
                     {item.product?.name || 'Unknown'}
                   </TableCell>
                   <TableCell>
-                    {item.stock_quantity} {item.product?.unit?.unit_name}
+                    {item.stock_quantity} {item.product?.unit.unit_name}
                   </TableCell>
                   <TableCell>
-                    {item.min_stock_level} {item.product?.unit?.unit_name}
+                    {item.min_stock_level} {item.product?.unit.unit_name}
                   </TableCell>
                   <TableCell>
                     {isLowStock(item) ? (
