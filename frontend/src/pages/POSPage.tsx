@@ -122,11 +122,12 @@ export default function POSPage() {
           : item
       ));
     } else {
-      const itemTotal = quantity * product.selling_price;
+      const numericUnitPrice = Number(product.selling_price);
+      const itemTotal = quantity * numericUnitPrice;
       setCart([...cart, {
         product,
         quantity,
-        unit_price: product.selling_price,
+        unit_price: numericUnitPrice,
         item_total: itemTotal,
         discount_type: null,
         discount_value: 0,
@@ -249,7 +250,7 @@ export default function POSPage() {
       return {
         product_id: item.product.product_id,
         quantity: item.quantity,
-        unit_price: item.unit_price,
+        unit_price: Number(item.unit_price),
         item_total: item.item_total,
         item_discount: itemDiscount,
         tax_rate: item.product.category?.gst_rate || 0,

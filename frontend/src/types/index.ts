@@ -82,8 +82,8 @@ export interface Transaction {
 }
 
 export interface TransactionItem {
-  transaction_item_id: number;
-  transaction_id: number;
+  transaction_item_id: string;
+  transaction_id: string;
   product_id: string;
   quantity: number;
   unit_price: number;
@@ -91,4 +91,5 @@ export interface TransactionItem {
   item_discount: number;
   tax_rate: number;
   product?: Product;
+  product_name: string;
 }

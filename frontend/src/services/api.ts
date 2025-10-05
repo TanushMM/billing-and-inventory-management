@@ -1,4 +1,4 @@
-import type { LoginCredentials, AuthResponse, Product, Category, Unit, Inventory, Biller, Customer } from '@/types';
+import type { LoginCredentials, AuthResponse, Product, Category, Unit, Inventory, Biller, Customer, Transaction } from '@/types';
 
 // The base URL of your Express backend API
 const API_BASE_URL = 'http://localhost:4000/api';
@@ -192,31 +192,11 @@ export const customerService = {
   },
 };
 
-import { mockTransactions } from "./mockData"
-import type { Transaction } from '@/types';
-
-// Mock APIs
 export const transactionService = {
-  async getAll(): Promise<Transaction[]> {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return [...mockTransactions];
-  },
-
-  async getById(id: string): Promise<Transaction> {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const transaction = mockTransactions.find(t => t.transaction_id === id);
-    if (!transaction) throw new Error('Transaction not found');
-    return transaction;
-  },
-
-  async create(transaction: Omit<Transaction, 'transaction_id' | 'transaction_date'>): Promise<Transaction> {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const newTransaction: Transaction = {
-      ...transaction,
-      transaction_id: "hello world",
-      transaction_date: new Date().toISOString(),
-    };
-    mockTransactions.push(newTransaction);
-    return newTransaction;
+  create(transaction: Omit<Transaction, 'transaction_id' | 'transaction_date'>): Promise<Transaction> {
+    return apiCall<Transaction>('/transactions', {
+      method: 'POST',
+      body: JSON.stringify(transaction),
+    });
   },
 };

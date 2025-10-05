@@ -13,6 +13,7 @@ import { categoriesRouter } from "./routes/categories-routes.js"
 import { unitsRouter } from "./routes/units-routes.js"
 import { inventoryRouter } from "./routes/inventory-routes.js"
 import { customersRouter } from "./routes/customer-routes.js"
+import { transactionsRouter } from "./routes/transactions-routes.js"
 
 const app = express()
 
@@ -43,6 +44,7 @@ app.use("/api/categories", authenticateJWT, categoriesRouter)
 app.use("/api/units", authenticateJWT, unitsRouter)
 app.use("/api/inventory", authenticateJWT, inventoryRouter)
 app.use("/api/customers", authenticateJWT, customersRouter)
+app.use("/api/transactions", authenticateJWT, transactionsRouter)
 
 // 404 + error handler
 app.use(notFound)
