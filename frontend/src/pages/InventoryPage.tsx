@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -26,6 +27,7 @@ const InventoryPage = () => {
   const { toast } = useToast();
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const loadInventory = async () => {
     try {
@@ -47,6 +49,18 @@ const InventoryPage = () => {
     loadInventory();
   }, []);
 
+  useEffect(() => {
+    const productId = searchParams.get('productId');
+    if (productId && inventory.length > 0) {
+      const itemToEdit = inventory.find(item => item.product_id === productId);
+      if (itemToEdit) {
+        handleEdit(itemToEdit);
+        // Clear the search param so it doesn't re-trigger
+        setSearchParams({}, { replace: true });
+      }
+    }
+  }, [inventory, searchParams, setSearchParams]);
+
   const handleEdit = (item: Inventory) => {
     setEditingItem(item);
     setFormData({
@@ -55,7 +69,15 @@ const InventoryPage = () => {
       stock_quantity: item.stock_quantity,
       min_stock_level: item.min_stock_level,
       batch_number: item.batch_number || '',
-      expiry_date: item.expiry_date || '',
+      expiry_date: item.expiry_date
+        ? (() => {
+            const d = new Date(item.expiry_date);
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+          })()
+        : '',
     });
     setEditDialogOpen(true);
   };

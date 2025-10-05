@@ -1,7 +1,8 @@
 import { Product, Category, Unit } from '@/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, Warehouse } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface ProductTableProps {
   products: Product[];
@@ -12,6 +13,7 @@ interface ProductTableProps {
 }
 
 export const ProductTable = ({ products, onEdit, onDelete }: ProductTableProps) => {
+  const navigate = useNavigate();
   return (
     <div className="border rounded-lg">
       <Table>
@@ -47,6 +49,14 @@ export const ProductTable = ({ products, onEdit, onDelete }: ProductTableProps) 
                 <TableCell>₹{product.mrp}</TableCell>
                 <TableCell>{product.unit_name || 'N/A'}</TableCell>
                 <TableCell className="text-right">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => navigate(`/inventory?productId=${product.product_id}`)}
+                    className="mr-2"
+                  >
+                    <Warehouse className="h-4 w-4" />
+                  </Button>
                   <Button
                     variant="ghost"
                     size="icon"
