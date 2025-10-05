@@ -17,9 +17,11 @@ export const ProductTable = ({ products, onEdit, onDelete }: ProductTableProps) 
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Product ID</TableHead>
+            {/* <TableHead>Product ID</TableHead> */}
             <TableHead>Name</TableHead>
+            <TableHead>Description</TableHead>
             <TableHead>Category</TableHead>
+            <TableHead>Cost Price</TableHead>
             <TableHead>Selling Price</TableHead>
             <TableHead>MRP</TableHead>
             <TableHead>Unit</TableHead>
@@ -36,9 +38,11 @@ export const ProductTable = ({ products, onEdit, onDelete }: ProductTableProps) 
           ) : (
             products.map((product) => (
               <TableRow key={product.product_id}>
-                <TableCell className="font-medium">{product.product_id}</TableCell>
+                {/* <TableCell className="font-medium">{product.product_id}</TableCell> */}
                 <TableCell>{product.name}</TableCell>
+                <TableCell>{product.description}</TableCell>
                 <TableCell>{product.category_name || 'N/A'}</TableCell>
+                <TableCell>₹{product.cost_price}</TableCell>
                 <TableCell>₹{product.selling_price}</TableCell>
                 <TableCell>₹{product.mrp}</TableCell>
                 <TableCell>{product.unit_name || 'N/A'}</TableCell>
