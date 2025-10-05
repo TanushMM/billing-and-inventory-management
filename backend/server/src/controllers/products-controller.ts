@@ -177,9 +177,17 @@ export async function updateProduct(req: Request, res: Response) {
 
 export async function deleteProduct(req: Request, res: Response) {
   const id = req.params.id
-  const result = await pool.query(`DELETE FROM products WHERE product_id = $1`, [id])
-  if (result.rowCount === 0) return res.status(404).json({ error: "Product not found" })
-  res.status(204).send()
+  try {
+    await pool.query("BEGIN")
+    await pool.query(`DELETE FROM inventory WHERE product_id = $1`, [id])
+    const result = await pool.query(`DELETE FROM products WHERE product_id = $1`, [id])
+    await pool.query("COMMIT")
+    if (result.rowCount === 0) return res.status(404).json({ error: "Product not found" })
+    res.status(204).send()
+  } catch (err) {
+    await pool.query("ROLLBACK")
+    throw err
+  }
 }
 
 // import type { Request, Response } from "express"
