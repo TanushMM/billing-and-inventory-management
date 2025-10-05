@@ -6,14 +6,21 @@ export async function listInventory(_req: Request, res: Response) {
     `SELECT
        i.inventory_id,
        i.product_id,
-       p.name AS product_name,
        i.stock_quantity,
        i.min_stock_level,
        i.batch_number,
        i.expiry_date,
-       i.last_updated_at
+       i.last_updated_at,
+       json_build_object(
+        'product_id', p.product_id,
+        'name', p.name,
+        'unit', json_build_object(
+            'unit_name', u.unit_name
+        )
+       ) as product
      FROM inventory i
      JOIN products p ON p.product_id = i.product_id
+     LEFT JOIN units u on u.unit_id = p.unit_id
      ORDER BY p.name ASC`,
   )
   res.json(rows)
