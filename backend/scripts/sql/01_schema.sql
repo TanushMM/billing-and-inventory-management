@@ -47,9 +47,21 @@ CREATE TABLE IF NOT EXISTS inventory (
   CONSTRAINT inventory_unique_product UNIQUE (product_id)
 );
 
+CREATE TABLE IF NOT EXISTS customers (
+  customer_id VARCHAR(50) PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) UNIQUE,
+  phone VARCHAR(20) UNIQUE,
+  address TEXT,
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Helpful indexes
 CREATE INDEX IF NOT EXISTS idx_products_category_id ON products(category_id);
 CREATE INDEX IF NOT EXISTS idx_products_unit_id ON products(unit_id);
 CREATE INDEX IF NOT EXISTS idx_inventory_product_id ON inventory(product_id);
+
+CREATE INDEX IF NOT EXISTS idx_customers_name ON customers(name);
+CREATE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone);
 
 COMMIT;

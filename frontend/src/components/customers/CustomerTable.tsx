@@ -14,7 +14,7 @@ interface CustomerTableProps {
   customers: Customer[];
   isLoading: boolean;
   onEdit: (customer: Customer) => void;
-  onDelete: (id: number) => void;
+  onDelete: (id: string) => void;
 }
 
 export const CustomerTable = ({
@@ -50,12 +50,12 @@ export const CustomerTable = ({
             <TableRow key={customer.customer_id}>
               <TableCell>{customer.customer_id}</TableCell>
               <TableCell>
-                {customer.first_name} {customer.last_name || ''}
+                {customer.name}
               </TableCell>
-              <TableCell>{customer.phone_number}</TableCell>
+              <TableCell>{customer.phone}</TableCell>
               <TableCell>{customer.email || '-'}</TableCell>
               <TableCell>{customer.address || '-'}</TableCell>
-              <TableCell>{new Date(customer.created_at).toLocaleDateString()}</TableCell>
+              <TableCell>{new Date(customer.created_at).toLocaleDateString('en-GB') || '-'}</TableCell>
               <TableCell className="text-right space-x-2">
                 <Button
                   variant="ghost"

@@ -35,7 +35,7 @@ export default function CustomersPage() {
     setIsFormOpen(true);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     if (confirm('Are you sure you want to delete this customer?')) {
       deleteMutation.mutate(id);
     }
@@ -47,12 +47,11 @@ export default function CustomersPage() {
   };
 
   const handleExportCSV = () => {
-    const headers = ['ID', 'First Name', 'Last Name', 'Phone', 'Email', 'Address', 'Created At'];
+    const headers = ['ID', 'Name', 'Phone', 'Email', 'Address', 'Created At'];
     const rows = customers.map(c => [
       c.customer_id,
-      c.first_name,
-      c.last_name || '',
-      c.phone_number,
+      c.name,
+      c.phone,
       c.email || '',
       c.address || '',
       new Date(c.created_at).toLocaleString(),

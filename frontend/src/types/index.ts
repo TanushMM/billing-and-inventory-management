@@ -48,10 +48,9 @@ export interface Inventory {
 }
 
 export interface Customer {
-  customer_id: number;
-  first_name: string;
-  last_name?: string;
-  phone_number: string;
+  customer_id: string;
+  name: string;
+  phone: string;
   email?: string;
   address?: string;
   created_at: string;
@@ -65,4 +64,31 @@ export interface LoginCredentials {
 export interface AuthResponse {
   token: string;
   biller: Biller;
+}
+
+export interface Transaction {
+  transaction_id: number;
+  customer_id?: number;
+  transaction_date: string;
+  total_amount: number;
+  total_discount: number;
+  final_amount: number;
+  payment_method: 'cash' | 'upi' | 'credit';
+  change_due: number;
+  customer_credit: number;
+  is_reprinted: boolean;
+  customer?: Customer;
+  items?: TransactionItem[];
+}
+
+export interface TransactionItem {
+  transaction_item_id: number;
+  transaction_id: number;
+  product_id: string;
+  quantity: number;
+  unit_price: number;
+  item_total: number;
+  item_discount: number;
+  tax_rate: number;
+  product?: Product;
 }

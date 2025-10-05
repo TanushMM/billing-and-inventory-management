@@ -1,4 +1,4 @@
-import type { LoginCredentials, AuthResponse, Product, Category, Unit, Inventory, Biller } from '@/types';
+import type { LoginCredentials, AuthResponse, Product, Category, Unit, Inventory, Biller, Customer } from '@/types';
 
 // The base URL of your Express backend API
 const API_BASE_URL = 'http://localhost:4000/api';
@@ -169,47 +169,51 @@ export const unitService = {
   },
 };
 
-// Mock APIs
-
-import { Customer } from '@/types';
-import { mockCustomers } from './mockData';
-
 export const customerService = {
-  async getAll(): Promise<Customer[]> {
+  getAll(): Promise<Customer[]> {
+    return apiCall<Customer[]>('/customers');
+  },
+  create(customer: Omit<Customer, 'customer_id' | 'created_at'>): Promise<Customer> {
+    return apiCall<Customer>('/customers', {
+      method: 'POST',
+      body: JSON.stringify(customer),
+    });
+  },
+  update(id: string, customer: Partial<Omit<Customer, 'customer_id' | 'created_at'>>): Promise<Customer> {
+    return apiCall<Customer>(`/customers/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(customer),
+    });
+  },
+  delete(id: string): Promise<void> {
+    return apiCall<void>(`/customers/${id}`, {
+      method: 'DELETE',
+    });
+  },
+};
+
+// Mock APIs
+export const transactionService = {
+  async getAll(): Promise<Transaction[]> {
     await new Promise(resolve => setTimeout(resolve, 300));
-    return [...mockCustomers];
+    return [...mockTransactions];
   },
 
-  async getById(id: number): Promise<Customer> {
+  async getById(id: number): Promise<Transaction> {
     await new Promise(resolve => setTimeout(resolve, 300));
-    const customer = mockCustomers.find(c => c.customer_id === id);
-    if (!customer) throw new Error('Customer not found');
-    return customer;
+    const transaction = mockTransactions.find(t => t.transaction_id === id);
+    if (!transaction) throw new Error('Transaction not found');
+    return transaction;
   },
 
-  async create(customer: Omit<Customer, 'customer_id' | 'created_at'>): Promise<Customer> {
+  async create(transaction: Omit<Transaction, 'transaction_id' | 'transaction_date'>): Promise<Transaction> {
     await new Promise(resolve => setTimeout(resolve, 300));
-    const newCustomer: Customer = {
-      ...customer,
-      customer_id: mockCustomers.length + 1,
-      created_at: new Date().toISOString(),
+    const newTransaction: Transaction = {
+      ...transaction,
+      transaction_id: mockTransactions.length + 1,
+      transaction_date: new Date().toISOString(),
     };
-    mockCustomers.push(newCustomer);
-    return newCustomer;
-  },
-
-  async update(id: number, customer: Partial<Customer>): Promise<Customer> {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const index = mockCustomers.findIndex(c => c.customer_id === id);
-    if (index === -1) throw new Error('Customer not found');
-    mockCustomers[index] = { ...mockCustomers[index], ...customer };
-    return mockCustomers[index];
-  },
-
-  async delete(id: number): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const index = mockCustomers.findIndex(c => c.customer_id === id);
-    if (index === -1) throw new Error('Customer not found');
-    mockCustomers.splice(index, 1);
+    mockTransactions.push(newTransaction);
+    return newTransaction;
   },
 };

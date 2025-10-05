@@ -12,6 +12,7 @@ import { productsRouter } from "./routes/products-routes.js"
 import { categoriesRouter } from "./routes/categories-routes.js"
 import { unitsRouter } from "./routes/units-routes.js"
 import { inventoryRouter } from "./routes/inventory-routes.js"
+import { customersRouter } from "./routes/customer-routes.js"
 
 const app = express()
 
@@ -41,6 +42,7 @@ app.use("/api/products", authenticateJWT, productsRouter)
 app.use("/api/categories", authenticateJWT, categoriesRouter)
 app.use("/api/units", authenticateJWT, unitsRouter)
 app.use("/api/inventory", authenticateJWT, inventoryRouter)
+app.use("/api/customers", authenticateJWT, customersRouter)
 
 // 404 + error handler
 app.use(notFound)
