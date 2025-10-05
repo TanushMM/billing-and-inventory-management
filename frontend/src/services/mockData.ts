@@ -1,4 +1,4 @@
-import { Biller, Category, Unit, Product, Inventory } from '@/types';
+import { Biller, Category, Unit, Product, Inventory, Customer } from '@/types';
 
 // Mock data for development
 export const mockBiller: Biller = {
@@ -70,5 +70,26 @@ export const mockInventory: Inventory[] = [
     batch_number: 'B002',
     last_updated_at: new Date().toISOString(),
     product: mockProducts[1],
+  },
+];
+
+
+export const mockCustomers: Customer[] = [
+  {
+    customer_id: 1,
+    first_name: 'John',
+    last_name: 'Doe',
+    phone_number: '9876543210',
+    email: 'john.doe@example.com',
+    address: '123 Main St, City',
+    created_at: new Date().toISOString(),
+  },
+  {
+    customer_id: 2,
+    first_name: 'Jane',
+    last_name: 'Smith',
+    phone_number: '9876543211',
+    email: 'jane.smith@example.com',
+    created_at: new Date().toISOString(),
   },
 ];

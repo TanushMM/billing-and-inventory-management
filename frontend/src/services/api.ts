@@ -168,3 +168,48 @@ export const unitService = {
     });
   },
 };
+
+// Mock APIs
+
+import { Customer } from '@/types';
+import { mockCustomers } from './mockData';
+
+export const customerService = {
+  async getAll(): Promise<Customer[]> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return [...mockCustomers];
+  },
+
+  async getById(id: number): Promise<Customer> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const customer = mockCustomers.find(c => c.customer_id === id);
+    if (!customer) throw new Error('Customer not found');
+    return customer;
+  },
+
+  async create(customer: Omit<Customer, 'customer_id' | 'created_at'>): Promise<Customer> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const newCustomer: Customer = {
+      ...customer,
+      customer_id: mockCustomers.length + 1,
+      created_at: new Date().toISOString(),
+    };
+    mockCustomers.push(newCustomer);
+    return newCustomer;
+  },
+
+  async update(id: number, customer: Partial<Customer>): Promise<Customer> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const index = mockCustomers.findIndex(c => c.customer_id === id);
+    if (index === -1) throw new Error('Customer not found');
+    mockCustomers[index] = { ...mockCustomers[index], ...customer };
+    return mockCustomers[index];
+  },
+
+  async delete(id: number): Promise<void> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const index = mockCustomers.findIndex(c => c.customer_id === id);
+    if (index === -1) throw new Error('Customer not found');
+    mockCustomers.splice(index, 1);
+  },
+};
