@@ -237,3 +237,128 @@ export const transactionService = {
     });
   },
 };
+
+
+// MOCK
+import {mockExpenses, mockExpenseChangeLogs, mockExpenseCategories} from './mockData';
+import {Expense, ExpenseCategory, ExpenseChangeLog } from '@/types';
+
+// Expense Category Service
+export const expenseCategoryService = {
+  async getAll(): Promise<ExpenseCategory[]> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return [...mockExpenseCategories];
+  },
+
+  async getById(id: string): Promise<ExpenseCategory> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const category = mockExpenseCategories.find(c => c.category_id === id);
+    if (!category) throw new Error('Category not found');
+    return category;
+  },
+
+  async create(category: Omit<ExpenseCategory, 'category_id'>): Promise<ExpenseCategory> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const newCategory: ExpenseCategory = {
+      ...category,
+      category_id: crypto.randomUUID(),
+    };
+    mockExpenseCategories.push(newCategory);
+    return newCategory;
+  },
+
+  async update(id: string, category: Partial<ExpenseCategory>): Promise<ExpenseCategory> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const index = mockExpenseCategories.findIndex(c => c.category_id === id);
+    if (index === -1) throw new Error('Category not found');
+    mockExpenseCategories[index] = { ...mockExpenseCategories[index], ...category };
+    return mockExpenseCategories[index];
+  },
+
+  async delete(id: string): Promise<void> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const index = mockExpenseCategories.findIndex(c => c.category_id === id);
+    if (index === -1) throw new Error('Category not found');
+    mockExpenseCategories.splice(index, 1);
+  },
+};
+
+// Expense Service
+export const expenseService = {
+  async getAll(): Promise<Expense[]> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return mockExpenses.map(expense => ({
+      ...expense,
+      category: mockExpenseCategories.find(c => c.category_id === expense.expense_category_id),
+    }));
+  },
+
+  async getById(id: string): Promise<Expense> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const expense = mockExpenses.find(e => e.expense_id === id);
+    if (!expense) throw new Error('Expense not found');
+    return {
+      ...expense,
+      category: mockExpenseCategories.find(c => c.category_id === expense.expense_category_id),
+    };
+  },
+
+  async create(expense: Omit<Expense, 'expense_id' | 'created_at'>): Promise<Expense> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const newExpense: Expense = {
+      ...expense,
+      expense_id: crypto.randomUUID(),
+      created_at: new Date().toISOString(),
+      category: mockExpenseCategories.find(c => c.category_id === expense.expense_category_id),
+    };
+    mockExpenses.push(newExpense);
+    return newExpense;
+  },
+
+  async update(id: string, expenseData: Partial<Expense>): Promise<Expense> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const index = mockExpenses.findIndex(e => e.expense_id === id);
+    if (index === -1) throw new Error('Expense not found');
+    
+    const oldExpense = mockExpenses[index];
+    const currentUser = authService.getCurrentUser();
+    
+    // Track changes
+    Object.keys(expenseData).forEach(key => {
+      const field = key as keyof Expense;
+      if (oldExpense[field] !== expenseData[field] && field !== 'category') {
+        const changeLog: ExpenseChangeLog = {
+          log_id: crypto.randomUUID(),
+          expense_id: id,
+          field_name: key,
+          old_value: String(oldExpense[field] || ''),
+          new_value: String(expenseData[field] || ''),
+          changed_by: currentUser?.full_name || 'Unknown',
+          changed_at: new Date().toISOString(),
+        };
+        mockExpenseChangeLogs.push(changeLog);
+      }
+    });
+    
+    mockExpenses[index] = { 
+      ...oldExpense, 
+      ...expenseData,
+      category: mockExpenseCategories.find(c => c.category_id === (expenseData.expense_category_id || oldExpense.expense_category_id)),
+    };
+    return mockExpenses[index];
+  },
+
+  async delete(id: string): Promise<void> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const index = mockExpenses.findIndex(e => e.expense_id === id);
+    if (index === -1) throw new Error('Expense not found');
+    mockExpenses.splice(index, 1);
+  },
+
+  async getChangeLogs(expenseId: string): Promise<ExpenseChangeLog[]> {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return mockExpenseChangeLogs
+      .filter(log => log.expense_id === expenseId)
+      .sort((a, b) => new Date(b.changed_at).getTime() - new Date(a.changed_at).getTime());
+  },
+};

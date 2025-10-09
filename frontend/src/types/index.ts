@@ -94,3 +94,29 @@ export interface TransactionItem {
   product?: Product;
   product_name: string;
 }
+
+export interface ExpenseCategory {
+  category_id: string;
+  category_name: string;
+}
+
+export interface Expense {
+  expense_id: string;
+  description: string;
+  amount: number;
+  expense_date: string;
+  expense_category_id: string;
+  notes?: string;
+  created_at: string;
+  category?: ExpenseCategory;
+}
+
+export interface ExpenseChangeLog {
+  log_id: string;
+  expense_id: string;
+  field_name: string;
+  old_value: string;
+  new_value: string;
+  changed_by: string;
+  changed_at: string;
+}
