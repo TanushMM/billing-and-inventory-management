@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { productService, customerService, transactionService } from '@/services/api';
-import { Product, Customer, Transaction, TransactionItem } from '@/types';
+import { Product, Transaction, TransactionItem } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,6 +24,8 @@ import {
 } from '@/components/ui/table';
 import { CartItemRow } from '@/components/pos/CartItemRow';
 import { CartDiscountDialog } from '@/components/pos/CartDiscountDialog';
+
+import { CustomerSearch } from '@/components/pos/CustomerSearch';
 
 interface CartItem {
   product: Product;
@@ -387,18 +389,7 @@ export default function POSPage() {
             <div className="space-y-3 mt-4">
               <div>
                 <Label>Customer (Optional)</Label>
-                <Select value={selectedCustomer} onValueChange={setSelectedCustomer}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select customer" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {customers.map((customer) => (
-                      <SelectItem key={customer.customer_id} value={customer.customer_id.toString()}>
-                        {customer.name} - {customer.phone}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <CustomerSearch customers={customers} selectedCustomer={selectedCustomer} onSelectCustomer={setSelectedCustomer} />
               </div>
 
               <div>
