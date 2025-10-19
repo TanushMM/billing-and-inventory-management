@@ -1,4 +1,4 @@
-import type { LoginCredentials, AuthResponse, Product, Category, Unit, Inventory, Biller, Customer, Transaction } from '@/types';
+import type { LoginCredentials, AuthResponse, Product, Category, Unit, Inventory, Biller, Customer, Transaction, Expense, ExpenseCategory, ExpenseChangeLog } from '@/types';
 
 // The base URL of your Express backend API
 const API_BASE_URL = 'http://localhost:4000/api';
@@ -239,126 +239,59 @@ export const transactionService = {
 };
 
 
-// MOCK
-import {mockExpenses, mockExpenseChangeLogs, mockExpenseCategories} from './mockData';
-import {Expense, ExpenseCategory, ExpenseChangeLog } from '@/types';
-
 // Expense Category Service
 export const expenseCategoryService = {
-  async getAll(): Promise<ExpenseCategory[]> {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return [...mockExpenseCategories];
+  getAll(): Promise<ExpenseCategory[]> {
+    return apiCall<ExpenseCategory[]>('/expense-categories');
   },
-
-  async getById(id: string): Promise<ExpenseCategory> {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const category = mockExpenseCategories.find(c => c.category_id === id);
-    if (!category) throw new Error('Category not found');
-    return category;
+  create(category: Omit<ExpenseCategory, 'category_id'>): Promise<ExpenseCategory> {
+    return apiCall<ExpenseCategory>('/expense-categories', {
+      method: 'POST',
+      body: JSON.stringify(category),
+    });
   },
-
-  async create(category: Omit<ExpenseCategory, 'category_id'>): Promise<ExpenseCategory> {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const newCategory: ExpenseCategory = {
-      ...category,
-      category_id: crypto.randomUUID(),
-    };
-    mockExpenseCategories.push(newCategory);
-    return newCategory;
+  update(id: string, category: Partial<ExpenseCategory>): Promise<ExpenseCategory> {
+    return apiCall<ExpenseCategory>(`/expense-categories/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(category),
+    });
   },
-
-  async update(id: string, category: Partial<ExpenseCategory>): Promise<ExpenseCategory> {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const index = mockExpenseCategories.findIndex(c => c.category_id === id);
-    if (index === -1) throw new Error('Category not found');
-    mockExpenseCategories[index] = { ...mockExpenseCategories[index], ...category };
-    return mockExpenseCategories[index];
-  },
-
-  async delete(id: string): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const index = mockExpenseCategories.findIndex(c => c.category_id === id);
-    if (index === -1) throw new Error('Category not found');
-    mockExpenseCategories.splice(index, 1);
+  delete(id: string): Promise<void> {
+    return apiCall<void>(`/expense-categories/${id}`, { method: 'DELETE' });
   },
 };
 
 // Expense Service
 export const expenseService = {
-  async getAll(): Promise<Expense[]> {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return mockExpenses.map(expense => ({
-      ...expense,
-      category: mockExpenseCategories.find(c => c.category_id === expense.expense_category_id),
-    }));
+  getAll(): Promise<Expense[]> {
+    return apiCall<Expense[]>('/expenses');
   },
 
-  async getById(id: string): Promise<Expense> {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const expense = mockExpenses.find(e => e.expense_id === id);
-    if (!expense) throw new Error('Expense not found');
-    return {
-      ...expense,
-      category: mockExpenseCategories.find(c => c.category_id === expense.expense_category_id),
-    };
+  getById(id: string): Promise<Expense> {
+    return apiCall<Expense>(`/expenses/${id}`);
   },
 
-  async create(expense: Omit<Expense, 'expense_id' | 'created_at'>): Promise<Expense> {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const newExpense: Expense = {
-      ...expense,
-      expense_id: crypto.randomUUID(),
-      created_at: new Date().toISOString(),
-      category: mockExpenseCategories.find(c => c.category_id === expense.expense_category_id),
-    };
-    mockExpenses.push(newExpense);
-    return newExpense;
-  },
-
-  async update(id: string, expenseData: Partial<Expense>): Promise<Expense> {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const index = mockExpenses.findIndex(e => e.expense_id === id);
-    if (index === -1) throw new Error('Expense not found');
-    
-    const oldExpense = mockExpenses[index];
-    const currentUser = authService.getCurrentUser();
-    
-    // Track changes
-    Object.keys(expenseData).forEach(key => {
-      const field = key as keyof Expense;
-      if (oldExpense[field] !== expenseData[field] && field !== 'category') {
-        const changeLog: ExpenseChangeLog = {
-          log_id: crypto.randomUUID(),
-          expense_id: id,
-          field_name: key,
-          old_value: String(oldExpense[field] || ''),
-          new_value: String(expenseData[field] || ''),
-          changed_by: currentUser?.full_name || 'Unknown',
-          changed_at: new Date().toISOString(),
-        };
-        mockExpenseChangeLogs.push(changeLog);
-      }
+  create(expense: Omit<Expense, 'expense_id' | 'created_at' | 'category'>): Promise<Expense> {
+    return apiCall<Expense>('/expenses', {
+      method: 'POST',
+      body: JSON.stringify(expense),
     });
-    
-    mockExpenses[index] = { 
-      ...oldExpense, 
-      ...expenseData,
-      category: mockExpenseCategories.find(c => c.category_id === (expenseData.expense_category_id || oldExpense.expense_category_id)),
-    };
-    return mockExpenses[index];
   },
 
-  async delete(id: string): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const index = mockExpenses.findIndex(e => e.expense_id === id);
-    if (index === -1) throw new Error('Expense not found');
-    mockExpenses.splice(index, 1);
+  update(id: string, expenseData: Partial<Expense>): Promise<Expense> {
+    return apiCall<Expense>(`/expenses/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(expenseData),
+    });
   },
 
-  async getChangeLogs(expenseId: string): Promise<ExpenseChangeLog[]> {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return mockExpenseChangeLogs
-      .filter(log => log.expense_id === expenseId)
-      .sort((a, b) => new Date(b.changed_at).getTime() - new Date(a.changed_at).getTime());
+  delete(id: string): Promise<void> {
+    return apiCall<void>(`/expenses/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  getChangeLogs(expenseId: string): Promise<ExpenseChangeLog[]> {
+    return apiCall<ExpenseChangeLog[]>(`/expenses/${expenseId}/changelog`);
   },
 };

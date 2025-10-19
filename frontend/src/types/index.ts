@@ -106,6 +106,7 @@ export interface Expense {
   amount: number;
   expense_date: string;
   expense_category_id: string;
+  category_name: string;
   notes?: string;
   created_at: string;
   category?: ExpenseCategory;

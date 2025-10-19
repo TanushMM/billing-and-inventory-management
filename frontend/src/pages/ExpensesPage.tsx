@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { expenseService, expenseCategoryService } from '@/services/api';
-import { Expense, ExpenseChangeLog } from '@/types';
+import { Expense, ExpenseCategory, ExpenseChangeLog } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Download, Search } from 'lucide-react';
+import { Plus, Download, Search, Settings } from 'lucide-react';
 import { ExpenseTable } from '@/components/expenses/ExpenseTable';
 import { ExpenseFormDialog } from '@/components/expenses/ExpenseFormDialog';
 import { ExpenseChangeLogDialog } from '@/components/expenses/ExpenseChangeLogDialog';
@@ -24,6 +24,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
+import { ConfigureExpenseDialog } from '@/components/expenses/ConfigureExpenseDialog';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -32,6 +33,7 @@ export default function ExpensesPage() {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [changeLogDialogOpen, setChangeLogDialogOpen] = useState(false);
+  const [configureDialogOpen, setConfigureDialogOpen] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
   const [selectedExpenseId, setSelectedExpenseId] = useState<string>('');
   const [changeLogs, setChangeLogs] = useState<ExpenseChangeLog[]>([]);
@@ -101,6 +103,7 @@ export default function ExpensesPage() {
   };
 
   const handleSubmit = (data: Partial<Expense>) => {
+    // data.expense_date = data.expense_date
     if (selectedExpense) {
       updateMutation.mutate({ id: selectedExpense.expense_id, data });
     } else {
@@ -120,11 +123,45 @@ export default function ExpensesPage() {
     }
   };
 
+  const handleAddCategory = (category: Omit<ExpenseCategory, 'category_id'>) => {
+    expenseCategoryService.create(category).then(() => {
+      toast({ title: 'Category added successfully' });
+      queryClient.invalidateQueries({ queryKey: ['expense-categories'] });
+    }).catch(error => {
+      toast({ title: 'Failed to add category', description: error.message, variant: 'destructive' });
+    });
+  };
+
+  const handleUpdateCategory = (id: string, category: Partial<ExpenseCategory>) => {
+    expenseCategoryService.update(id, category).then(() => {
+      toast({ title: 'Category updated successfully' });
+      queryClient.invalidateQueries({ queryKey: ['expense-categories'] });
+    }).catch(error => {
+      toast({ title: 'Failed to update category', description: error.message, variant: 'destructive' });
+    });
+  };
+
+  const handleDeleteCategory = (id: string) => {
+    if (confirm('Are you sure you want to delete this category?')) {
+      expenseCategoryService.delete(id).then(() => {
+        toast({ title: 'Category deleted successfully' });
+        queryClient.invalidateQueries({ queryKey: ['expense-categories'] });
+        queryClient.invalidateQueries({ queryKey: ['expenses'] }); // Refetch expenses as some might be affected
+      }).catch(error => {
+        toast({
+          title: 'Failed to delete category',
+          description: error.message,
+          variant: 'destructive',
+        });
+      });
+    }
+  };
+
   const handleExportCSV = () => {
     const csvData = filteredExpenses.map(expense => ({
-      Date: new Date(expense.expense_date).toLocaleDateString(),
+      Date: new Date(expense.expense_date).toLocaleDateString('en-GB'),
       Description: expense.description,
-      Category: expense.category?.category_name || 'N/A',
+      Category: expense.category_name || 'N/A',
       Amount: expense.amount,
       Notes: expense.notes || '',
     }));
@@ -189,6 +226,10 @@ export default function ExpensesPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Expenses</h1>
         <div className="flex gap-2">
+          <Button onClick={() => setConfigureDialogOpen(true)} variant="outline">
+            <Settings className="mr-2 h-4 w-4" />
+            Configure
+          </Button>
           <Button onClick={handleExportCSV} variant="outline" disabled={filteredExpenses.length === 0}>
             <Download className="mr-2 h-4 w-4" />
             Export CSV
@@ -301,6 +342,15 @@ export default function ExpensesPage() {
         onOpenChange={setChangeLogDialogOpen}
         changeLogs={changeLogs}
         loading={changeLogLoading}
+      />
+
+      <ConfigureExpenseDialog
+        open={configureDialogOpen}
+        onOpenChange={setConfigureDialogOpen}
+        categories={categories}
+        onAdd={handleAddCategory}
+        onUpdate={handleUpdateCategory}
+        onDelete={handleDeleteCategory}
       />
     </div>
   );

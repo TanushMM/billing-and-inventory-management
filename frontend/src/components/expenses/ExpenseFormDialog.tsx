@@ -64,10 +64,20 @@ export function ExpenseFormDialog({
 
   useEffect(() => {
     if (expense) {
+      console.log(new Date(expense.expense_date).toISOString().substring(0, 10))
       form.reset({
         description: expense.description,
         amount: expense.amount.toString(),
-        expense_date: expense.expense_date,
+        // expense_date: expense ? expense.expense_date : '',
+        // expense_date: expense ? new Date(expense.expense_date).toISOString().substring(0, 10) : '',
+        expense_date: expense.expense_date ? (() => {
+            const d = new Date(expense.expense_date);
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+          })()
+        : '',
         expense_category_id: expense.expense_category_id,
         notes: expense.notes || '',
       });
@@ -83,9 +93,13 @@ export function ExpenseFormDialog({
   }, [expense, form]);
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
+    // Convert the date back to an ISO datetime string before submitting
+    const expense_date = new Date(values.expense_date).toISOString();
+
     onSubmit({
       ...values,
       amount: parseFloat(values.amount),
+      // expense_date: expense_date,
     });
     form.reset();
     onOpenChange(false);

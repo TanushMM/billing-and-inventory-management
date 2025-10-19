@@ -41,10 +41,10 @@ export function ExpenseTable({ expenses, onEdit, onDelete, onViewChangelog }: Ex
           ) : (
             expenses.map((expense) => (
               <TableRow key={expense.expense_id}>
-                <TableCell>{new Date(expense.expense_date).toLocaleDateString()}</TableCell>
+                <TableCell>{new Date(expense.expense_date).toLocaleDateString('en-IN')}</TableCell>
                 <TableCell className="font-medium">{expense.description}</TableCell>
-                <TableCell>{expense.category?.category_name || 'N/A'}</TableCell>
-                <TableCell>₹{expense.amount.toFixed(2)}</TableCell>
+                <TableCell>{expense.category_name || 'N/A'}</TableCell>
+                <TableCell>₹{Number(expense.amount).toFixed(2)}</TableCell>
                 <TableCell className="max-w-xs truncate">{expense.notes || '-'}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
