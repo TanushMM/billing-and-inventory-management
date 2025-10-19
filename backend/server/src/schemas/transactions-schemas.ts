@@ -22,3 +22,9 @@ export const transactionCreateSchema = z.object({
 });
 
 export type TransactionCreateInput = z.infer<typeof transactionCreateSchema>;
+
+export const bulkTransactionCreateSchema = z.object({
+  date: z.string().date(),
+  totalAmount: z.number().positive(),
+  paymentMethod: z.enum(['cash', 'GPay']),
+});

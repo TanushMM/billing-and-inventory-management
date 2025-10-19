@@ -166,3 +166,51 @@ export async function exportTransactions(req: Request, res: Response) {
     res.status(500).json({ error: "Failed to export data" });
   }
 }
+
+export async function createBulkTransactions(req: Request, res: Response) {
+  const { date, totalAmount, paymentMethod } = req.body;
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Find or create the 'Manual Entry' customer
+    let customerRes = await client.query("SELECT customer_id FROM customers WHERE name = 'Manual Entry'");
+    let customerId;
+    if (customerRes.rows.length === 0) {
+      const newCustomerId = randomUUID();
+      await client.query(
+        "INSERT INTO customers (customer_id, name) VALUES ($1, $2)",
+        [newCustomerId, 'Manual Entry']
+      );
+      customerId = newCustomerId;
+    } else {
+      customerId = customerRes.rows[0].customer_id;
+    }
+
+    const transactionId = randomUUID();
+    await client.query(
+      `INSERT INTO transactions 
+        (transaction_id, customer_id, transaction_date, total_amount, final_amount, payment_method, total_discount, change_due, customer_credit) 
+       VALUES ($1, $2, $3, $4, $5, $6, 0, 0, 0)`,
+      [
+        transactionId,
+        customerId,
+        new Date(date),
+        totalAmount,
+        totalAmount,
+        paymentMethod,
+      ]
+    );
+
+    await client.query('COMMIT');
+    res.status(201).json({ message: `Transaction created successfully for ${date}.` });
+
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error("Bulk transaction creation failed:", error);
+    res.status(500).json({ error: "Failed to create bulk transactions" });
+  } finally {
+    client.release();
+  }
+}

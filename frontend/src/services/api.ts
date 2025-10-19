@@ -204,6 +204,12 @@ export const transactionService = {
 
     return apiCall<{ data: Transaction[], total: number }>(`/transactions?${query.toString()}`);
   },
+  createBulk(data: { date: string, totalAmount: number, paymentMethod: string }): Promise<{ message: string }> {
+    return apiCall<{ message: string }>('/transactions/bulk', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
   async export(params: { filter?: string, startDate?: string, endDate?: string }): Promise<void> {
     const query = new URLSearchParams();
     if (params.filter) query.set('filter', params.filter);

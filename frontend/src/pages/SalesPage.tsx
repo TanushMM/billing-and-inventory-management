@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { transactionService } from '@/services/api';
 import { Transaction } from '@/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { DateRange } from 'react-day-picker';
 import { format, subDays } from 'date-fns';
-import { CalendarIcon, Download  } from 'lucide-react';
+import { CalendarIcon, Download, PlusCircle } from 'lucide-react';
 import {
   Pagination,
   PaginationContent,
@@ -16,6 +16,9 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+
+import { BulkSalesDialog } from '@/components/sales/BulkSalesDialog';
+import { useToast } from '@/hooks/use-toast';
 
 type FilterType = 'day' | 'month' | 'year' | 'custom';
 
@@ -26,6 +29,10 @@ export default function SalesPage() {
     from: subDays(new Date(), 7),
     to: new Date(),
   });
+
+  const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const { data, isLoading, isError } = useQuery<{ data: Transaction[], total: number }>({
     queryKey: ['transactions', page, filter, dateRange],
@@ -40,6 +47,18 @@ export default function SalesPage() {
 
   const transactions = data?.data || [];
   const totalPages = Math.ceil((data?.total || 0) / 10);
+
+  const bulkCreateMutation = useMutation({
+    mutationFn: transactionService.createBulk,
+    onSuccess: () => {
+      toast({ title: 'Bulk sales added successfully!' });
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      setBulkDialogOpen(false);
+    },
+    onError: (error) => {
+      toast({ title: 'Failed to add bulk sales', description: error.message, variant: 'destructive' });
+    },
+  });
 
   const handleExport = async () => {
     try {
@@ -91,10 +110,16 @@ export default function SalesPage() {
             </PopoverContent>
           </Popover>
         </div>
-        <Button onClick={handleExport} variant="outline" className="gap-2">
-          <Download className="h-4 w-4" />
-          Export to CSV
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setBulkDialogOpen(true)} variant="outline" className="gap-2">
+            <PlusCircle className="h-4 w-4" />
+            Bulk Add
+          </Button>
+          <Button onClick={handleExport} variant="outline" className="gap-2">
+            <Download className="h-4 w-4" />
+            Export to CSV
+          </Button>
+        </div>
       </div>
 
       <div className="border rounded-lg">
@@ -151,6 +176,12 @@ export default function SalesPage() {
           </PaginationItem>
         </PaginationContent>
       </Pagination>
+      <BulkSalesDialog
+        open={bulkDialogOpen}
+        onOpenChange={setBulkDialogOpen}
+        onSubmit={bulkCreateMutation.mutate}
+        isSubmitting={bulkCreateMutation.isPending}
+      />
     </div>
   );
 }
