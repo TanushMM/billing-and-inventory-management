@@ -14,11 +14,11 @@ export async function listExpenses(req: Request, res: Response) {
 }
 
 export async function createExpense(req: Request, res: Response) {
-  const { description, amount, expense_date, expense_category_id, notes } = req.body as ExpenseCreateInput;
+  const { description, amount, expense_date, expense_category_id, payment_method, account, notes } = req.body as ExpenseCreateInput;
   const { rows } = await pool.query(
-    `INSERT INTO expenses (expense_id, description, amount, expense_date, expense_category_id, notes)
-     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-    [randomUUID(), description, amount, expense_date, expense_category_id, notes]
+    `INSERT INTO expenses (expense_id, description, amount, expense_date, expense_category_id, payment_method, account, notes)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+    [randomUUID(), description, amount, expense_date, expense_category_id, payment_method, account, notes]
   );
   res.status(201).json(rows[0]);
 }

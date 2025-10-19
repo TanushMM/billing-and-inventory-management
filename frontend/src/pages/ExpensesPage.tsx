@@ -163,6 +163,8 @@ export default function ExpensesPage() {
       Description: expense.description,
       Category: expense.category_name || 'N/A',
       Amount: expense.amount,
+      "Payment Method": expense.payment_method,
+      Account: expense.account,
       Notes: expense.notes || '',
     }));
 
@@ -211,6 +213,7 @@ export default function ExpensesPage() {
 
   const filteredExpenses = getFilteredByDate().filter(expense =>
     expense.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    expense.payment_method.toLowerCase().includes(searchQuery.toLowerCase()) ||
     expense.category?.category_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 

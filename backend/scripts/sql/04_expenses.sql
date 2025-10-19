@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS expenses (
   amount DECIMAL(10, 2) NOT NULL,
   expense_date DATE NOT NULL,
   expense_category_id VARCHAR(50) REFERENCES expense_categories(category_id) ON DELETE RESTRICT,
+  payment_method VARCHAR(50) NOT NULL,
+  account VARCHAR(100) NOT NULL,
   notes TEXT,
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );

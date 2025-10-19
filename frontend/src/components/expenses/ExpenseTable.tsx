@@ -27,6 +27,8 @@ export function ExpenseTable({ expenses, onEdit, onDelete, onViewChangelog }: Ex
             <TableHead>Description</TableHead>
             <TableHead>Category</TableHead>
             <TableHead>Amount</TableHead>
+            <TableHead>Payment Method</TableHead>
+            <TableHead>Account</TableHead>
             <TableHead>Notes</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
@@ -34,7 +36,7 @@ export function ExpenseTable({ expenses, onEdit, onDelete, onViewChangelog }: Ex
         <TableBody>
           {expenses.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={6} className="text-center text-muted-foreground">
+              <TableCell colSpan={8} className="text-center text-muted-foreground">
                 No expenses found
               </TableCell>
             </TableRow>
@@ -45,6 +47,8 @@ export function ExpenseTable({ expenses, onEdit, onDelete, onViewChangelog }: Ex
                 <TableCell className="font-medium">{expense.description}</TableCell>
                 <TableCell>{expense.category_name || 'N/A'}</TableCell>
                 <TableCell>₹{Number(expense.amount).toFixed(2)}</TableCell>
+                <TableCell>{expense.payment_method}</TableCell>
+                <TableCell>{expense.account}</TableCell>
                 <TableCell className="max-w-xs truncate">{expense.notes || '-'}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">

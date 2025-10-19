@@ -9,6 +9,8 @@ export const expenseSchema = z.object({
   amount: z.number().positive("Amount must be positive"),
   expense_date: z.string().date("Invalid date format"),
   expense_category_id: z.string().min(1, "Category is required"),
+  payment_method: z.string().min(1, "Payment method is required"),
+  account: z.string().min(1, "Account is required"),
   notes: z.string().optional(),
 });
 

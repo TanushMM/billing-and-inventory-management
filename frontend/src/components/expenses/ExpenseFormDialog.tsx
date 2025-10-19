@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -28,11 +28,20 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { ChevronsUpDown, Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+const PREDEFINED_ACCOUNTS = ["SBI", "UCO", "Shop"];
+
 const formSchema = z.object({
   description: z.string().min(1, 'Description is required'),
   amount: z.string().min(1, 'Amount is required'),
   expense_date: z.string().min(1, 'Date is required'),
   expense_category_id: z.string().min(1, 'Category is required'),
+  payment_method: z.string().min(1, 'Payment method is required'),
+  account: z.string().min(1, 'Account is required'),
   notes: z.string().optional(),
 });
 
@@ -51,6 +60,7 @@ export function ExpenseFormDialog({
   categories,
   onSubmit,
 }: ExpenseFormDialogProps) {
+  const [popoverOpen, setPopoverOpen] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -58,6 +68,8 @@ export function ExpenseFormDialog({
       amount: '',
       expense_date: new Date().toISOString().split('T')[0],
       expense_category_id: '',
+      payment_method: '',
+      account: '',
       notes: '',
     },
   });
@@ -68,8 +80,6 @@ export function ExpenseFormDialog({
       form.reset({
         description: expense.description,
         amount: expense.amount.toString(),
-        // expense_date: expense ? expense.expense_date : '',
-        // expense_date: expense ? new Date(expense.expense_date).toISOString().substring(0, 10) : '',
         expense_date: expense.expense_date ? (() => {
             const d = new Date(expense.expense_date);
             const yyyy = d.getFullYear();
@@ -79,6 +89,8 @@ export function ExpenseFormDialog({
           })()
         : '',
         expense_category_id: expense.expense_category_id,
+        payment_method: expense?.payment_method,
+        account: expense?.account,
         notes: expense.notes || '',
       });
     } else {
@@ -87,6 +99,8 @@ export function ExpenseFormDialog({
         amount: '',
         expense_date: new Date().toISOString().split('T')[0],
         expense_category_id: '',
+        payment_method: expense?.payment_method || '',
+        account: expense?.account || '',
         notes: '',
       });
     }
@@ -176,6 +190,90 @@ export function ExpenseFormDialog({
                     <FormControl>
                       <Input {...field} type="date" />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="payment_method"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Payment Method</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select method" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Cash">Cash</SelectItem>
+                        <SelectItem value="GPay">GPay</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="account"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Account</FormLabel>
+                    {/* <Popover> */}
+                    <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              "w-full justify-between",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value || "Select or type account"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                        <Command>
+                          <CommandInput
+                            placeholder="Search or add account..."
+                            onValueChange={field.onChange}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                setPopoverOpen(false);
+                              }
+                            }}
+                          />
+                          <CommandList>
+                            <CommandEmpty>No account found. Press Enter to add.</CommandEmpty>
+                            <CommandGroup>
+                              {PREDEFINED_ACCOUNTS.map((account) => (
+                                <CommandItem
+                                  value={account}
+                                  key={account}
+                                  onSelect={() => {
+                                    form.setValue("account", account);
+                                    setPopoverOpen(false);
+                                  }}
+                                >
+                                  <Check className={cn("mr-2 h-4 w-4", account === field.value ? "opacity-100" : "opacity-0")} />
+                                  {account}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                     <FormMessage />
                   </FormItem>
                 )}
